@@ -99,14 +99,6 @@ jobs:
                   sudo udevadm control --reload-rules
                   sudo udevadm trigger --name-match=kvm
 
-            - name: Clean workspace
-              run: |
-                  echo "Cleaning unused caches..."
-                  sudo rm -rf $HOME/.gradle/caches/
-                  sudo rm -rf $HOME/.android/build-cache/
-                  sudo rm -rf android/app/build/
-                  sudo rm -rf /tmp/*
-                  sudo rm -rf /usr/local/lib/android/sdk/system-images
             - name: Install emulator dependencies (libpulse)
               run: |
                   sudo apt-get update
