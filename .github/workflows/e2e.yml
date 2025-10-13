@@ -107,7 +107,10 @@ jobs:
                   sudo rm -rf android/app/build/
                   sudo rm -rf /tmp/*
                   sudo rm -rf /usr/local/lib/android/sdk/system-images
-
+            - name: Install emulator dependencies (libpulse)
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libpulse0 libvirt-daemon-system libvirt-clients bridge-utils
 
             - name: Run Android Detox tests
               uses: reactivecircus/android-emulator-runner@v2
