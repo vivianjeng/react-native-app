@@ -116,6 +116,7 @@ jobs:
                   target: google_apis
                   arch: x86_64
                   disable-animations: true
+                  avd-name: Pixel_8_API_35
                   disk-size: 2048M
                   emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
                   script: adb devices && $ANDROID_HOME/emulator/emulator -list-avds && npm run e2e:test:android
