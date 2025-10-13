@@ -118,4 +118,4 @@ jobs:
                   disable-animations: true
                   disk-size: 2048M
                   emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
-                  script: adb devices && emulator -list-avds && npm run e2e:test:android
+                  script: adb devices && $ANDROID_HOME/emulator/emulator -list-avds && npm run e2e:test:android
