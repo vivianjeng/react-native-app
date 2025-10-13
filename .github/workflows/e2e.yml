@@ -111,6 +111,17 @@ jobs:
               run: |
                   sudo apt-get update
                   sudo apt-get install -y libpulse0 libvirt-daemon-system libvirt-clients bridge-utils
+            - name: Run Android Detox tests
+              uses: reactivecircus/android-emulator-runner@v2
+              with:
+                  api-level: 29
+                  target: google_apis
+                  arch: x86_64
+                  disable-animations: true
+                  avd-name: Pixel_8_API_35
+                  disk-size: 8192M
+                  emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
+                  script: npm run e2e:build:android
 
             - name: Run Android Detox tests
               uses: reactivecircus/android-emulator-runner@v2
@@ -120,6 +131,6 @@ jobs:
                   arch: x86_64
                   disable-animations: true
                   avd-name: Pixel_8_API_35
-                  disk-size: 2048M
+                  disk-size: 8192M
                   emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
-                  script: adb devices && $ANDROID_HOME/emulator/emulator -list-avds && npm run e2e:test:android
+                  script: npm run e2e:test:android
