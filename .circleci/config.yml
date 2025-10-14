@@ -56,6 +56,7 @@ jobs:
                       done
             - run:
                   name: Start emulator
+                  avd_name: Pixel_8_API_35
                   command: |
                       echo "🛠️ Building Android app for Detox..."
                       npm run e2e:build:android
