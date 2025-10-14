@@ -54,10 +54,10 @@ jobs:
                         echo "Waiting for Metro..."
                         sleep 2
                       done
-            - android/start_emulator:
+            - android/create_avd:
                   avd_name: Pixel_8_API_35
-                  no_window: true
-                  restore_gradle_cache_prefix: v1a
+                  system_image: system-images;android-31;default;x86_64
+                  install: true
             - run:
                   name: Run Detox tests
                   command: |
