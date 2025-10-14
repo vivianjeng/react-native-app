@@ -58,6 +58,11 @@ jobs:
                   avd_name: Pixel_8_API_35
                   system_image: system-images;android-31;default;x86_64
                   install: true
+            - android/start_emulator:
+                  avd_name: Pixel_8_API_35
+                  no_window: true
+                  restore_gradle_cache_prefix: v1a
+                  post_emulator_launch_assemble_command: ""
             - run:
                   name: Run Detox tests
                   command: |
