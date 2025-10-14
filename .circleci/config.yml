@@ -32,7 +32,7 @@ jobs:
 
             # 🟢 Setup Node.js
             - node/install:
-                  node-version: '20'
+                  node-version: "20"
 
             - run:
                   name: Install dependencies
@@ -83,11 +83,8 @@ jobs:
                   command: npm run e2e:build:android
 
             # 🧪 Run Detox tests in emulator
-            - android/start-emulator-and-run-tests:
-                  system-image: system-images;android-29;google_apis;x86_64
-                  device: "pixel_8"
-                  additional-args: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
-                  run-tests-command: npm run e2e:test:android
+            - android/start_emulator_and_run_tests:
+                  system_image: system-images;android-31;default;x86_64
 
 workflows:
     e2e:
