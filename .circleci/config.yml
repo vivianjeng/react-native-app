@@ -5,88 +5,67 @@ orbs:
     android: circleci/android@3.1.0
 
 jobs:
-    android_e2e:
-        docker:
-            - image: cimg/android:2024.08 # includes Android SDK + Node
-        resource_class: large
+    e2e-android:
+        executor:
+            name: android/android_machine
+            resource_class: large
+            tag: default
         environment:
-            EXPO_NO_WAIT: "true"
-            CI: "true"
-            JAVA_OPTS: "-Xmx2g"
+            CI: true
+            EXPO_NO_WAIT: true
+
         steps:
             - checkout
 
-            # 🧹 Free disk space
-            - run:
-                  name: Clean up disk space
-                  command: |
-                      sudo rm -rf /usr/local/share/.cache
-                      sudo rm -rf /opt/android/sdk/system-images
-                      sudo rm -rf ~/.gradle/caches
-                      sudo rm -rf ~/.gradle/daemon
-                      sudo rm -rf ~/.gradle/native
-                      sudo rm -rf ~/.gradle/wrapper
-                      sudo rm -rf ~/.npm
-                      sudo rm -rf ~/.cache
-                      df -h
-
-            # 🟢 Setup Node.js
+            # Setup Node.js (using orb for consistency)
             - node/install:
                   node-version: "20"
 
+            # Install dependencies
             - run:
-                  name: Install dependencies
+                  name: Install npm dependencies
                   command: npm ci
 
+            # Install Expo CLI (globally)
             - run:
                   name: Install Expo CLI
                   command: npm install -g expo-cli
 
-            # ⚙️ Prebuild native code
+            # Prebuild the Expo app into native Android code
             - run:
-                  name: Expo Prebuild
+                  name: Prebuild Expo app
                   command: npm run prebuild
 
-            # 🧠 Start Metro bundler (background)
+            # Start Metro bundler in background
             - run:
-                  name: Start Metro bundler
+                  name: Start Metro Bundler
                   command: npx expo start --dev-client --port 8081 &
                   background: true
 
+            # Wait for Metro to start
             - run:
                   name: Wait for Metro
                   command: |
                       for i in {1..30}; do
-                        nc -z localhost 8081 && echo "Metro is up!" && break
+                        if nc -z localhost 8081; then
+                          echo "Metro is up!"
+                          break
+                        fi
                         echo "Waiting for Metro..."
                         sleep 2
                       done
 
-            # 🧰 Enable KVM (for emulator performance)
-            - run:
-                  name: Enable KVM
-                  command: |
-                      echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-                      sudo udevadm control --reload-rules
-                      sudo udevadm trigger --name-match=kvm
-
-            # 🧩 Install additional libs
-            - run:
-                  name: Install emulator dependencies
-                  command: |
-                      sudo apt-get update
-                      sudo apt-get install -y libpulse0 libvirt-daemon-system libvirt-clients bridge-utils
-
-            # 🏗️ Build Android app for Detox
-            - run:
-                  name: Build Android E2E
-                  command: npm run e2e:build:android
-
-            # 🧪 Run Detox tests in emulator
+            # Start emulator and run tests via orb
             - android/start_emulator_and_run_tests:
                   system_image: system-images;android-31;default;x86_64
+                  test_command: |
+                      echo "🛠️ Building Android app for Detox..."
+                      npm run e2e:build:android
+
+                      echo "🚀 Running Detox E2E tests..."
+                      npm run e2e:test:android
 
 workflows:
     e2e:
         jobs:
-            - android_e2e
+            - e2e-android
