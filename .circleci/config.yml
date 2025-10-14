@@ -1,0 +1,95 @@
+version: 2.1
+
+orbs:
+    node: circleci/node@7.2.0
+    android: circleci/android@3.1.0
+
+jobs:
+    android_e2e:
+        docker:
+            - image: cimg/android:2024.08 # includes Android SDK + Node
+        resource_class: large
+        environment:
+            EXPO_NO_WAIT: "true"
+            CI: "true"
+            JAVA_OPTS: "-Xmx2g"
+        steps:
+            - checkout
+
+            # 🧹 Free disk space
+            - run:
+                  name: Clean up disk space
+                  command: |
+                      sudo rm -rf /usr/local/share/.cache
+                      sudo rm -rf /opt/android/sdk/system-images
+                      sudo rm -rf ~/.gradle/caches
+                      sudo rm -rf ~/.gradle/daemon
+                      sudo rm -rf ~/.gradle/native
+                      sudo rm -rf ~/.gradle/wrapper
+                      sudo rm -rf ~/.npm
+                      sudo rm -rf ~/.cache
+                      df -h
+
+            # 🟢 Setup Node.js
+            - node/install:
+                  node-version: '20'
+
+            - run:
+                  name: Install dependencies
+                  command: npm ci
+
+            - run:
+                  name: Install Expo CLI
+                  command: npm install -g expo-cli
+
+            # ⚙️ Prebuild native code
+            - run:
+                  name: Expo Prebuild
+                  command: npm run prebuild
+
+            # 🧠 Start Metro bundler (background)
+            - run:
+                  name: Start Metro bundler
+                  command: npx expo start --dev-client --port 8081 &
+                  background: true
+
+            - run:
+                  name: Wait for Metro
+                  command: |
+                      for i in {1..30}; do
+                        nc -z localhost 8081 && echo "Metro is up!" && break
+                        echo "Waiting for Metro..."
+                        sleep 2
+                      done
+
+            # 🧰 Enable KVM (for emulator performance)
+            - run:
+                  name: Enable KVM
+                  command: |
+                      echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+                      sudo udevadm control --reload-rules
+                      sudo udevadm trigger --name-match=kvm
+
+            # 🧩 Install additional libs
+            - run:
+                  name: Install emulator dependencies
+                  command: |
+                      sudo apt-get update
+                      sudo apt-get install -y libpulse0 libvirt-daemon-system libvirt-clients bridge-utils
+
+            # 🏗️ Build Android app for Detox
+            - run:
+                  name: Build Android E2E
+                  command: npm run e2e:build:android
+
+            # 🧪 Run Detox tests in emulator
+            - android/start-emulator-and-run-tests:
+                  system-image: system-images;android-29;google_apis;x86_64
+                  device: "pixel_8"
+                  additional-args: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
+                  run-tests-command: npm run e2e:test:android
+
+workflows:
+    e2e:
+        jobs:
+            - android_e2e
