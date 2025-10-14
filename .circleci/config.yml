@@ -54,9 +54,12 @@ jobs:
                         echo "Waiting for Metro..."
                         sleep 2
                       done
-            - run:
-                  name: Start emulator
+            - android/start_emulator:
                   avd_name: Pixel_8_API_35
+                  no_window: true
+                  restore_gradle_cache_prefix: v1a
+            - run:
+                  name: Run Detox tests
                   command: |
                       echo "🛠️ Building Android app for Detox..."
                       npm run e2e:build:android
