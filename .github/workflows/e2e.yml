@@ -103,6 +103,15 @@ jobs:
               run: |
                   sudo apt-get update
                   sudo apt-get install -y libpulse0 libvirt-daemon-system libvirt-clients bridge-utils
+            - name: Clear Gradle and npm caches
+              run: |
+                rm -rf ~/.gradle/caches
+                rm -rf ~/.gradle/daemon
+                rm -rf ~/.gradle/native
+                rm -rf ~/.gradle/wrapper
+                rm -rf ~/.npm
+                rm -rf ~/.cache
+                df -h
             - name: Run Android Detox tests
               uses: reactivecircus/android-emulator-runner@v2
               with:
@@ -113,7 +122,18 @@ jobs:
                   avd-name: Pixel_8_API_35
                   disk-size: 8192M
                   emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
-                  script: npm run e2e:build:android
+                  script: df -h && npm run e2e:build:android
+            - name: Check space
+              uses: reactivecircus/android-emulator-runner@v2
+              with:
+                  api-level: 29
+                  target: google_apis
+                  arch: x86_64
+                  disable-animations: true
+                  avd-name: Pixel_8_API_35
+                  disk-size: 8192M
+                  emulator-options: "-no-snapshot -no-boot-anim -no-window -gpu swiftshader_indirect -memory 4096 -cores 4"
+                  script: df -h
 
             - name: Run Android Detox tests
               uses: reactivecircus/android-emulator-runner@v2
