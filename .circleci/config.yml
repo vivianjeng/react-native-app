@@ -54,14 +54,11 @@ jobs:
                         echo "Waiting for Metro..."
                         sleep 2
                       done
-
-            # Start emulator and run tests via orb
-            - android/start_emulator_and_run_tests:
-                  system_image: system-images;android-31;default;x86_64
-                  test_command: |
+            - run:
+                  name: Start emulator
+                  command: |
                       echo "🛠️ Building Android app for Detox..."
                       npm run e2e:build:android
-
                       echo "🚀 Running Detox E2E tests..."
                       npm run e2e:test:android
 
