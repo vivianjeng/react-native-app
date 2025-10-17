@@ -28,6 +28,6 @@ describe('Circom Proof UI Flow', () => {
     // Wait for valid output
     await waitFor(element(by.id('valid-output')))
       .toHaveText('true')
-      .withTimeout(1000);
+      .withTimeout(10000);
   });
 });

@@ -41,9 +41,7 @@ jobs:
             - run:
                   name: Start Metro bundler
                   command: |
-                      nohup npx expo start --dev-client --port $METRO_PORT --host 0.0.0.0 > metro.log 2>&1 &
-                      sleep 5
-                      echo "Metro started on port $METRO_PORT"
+                      npm run start
 
             # Create AVD
             - android/create_avd:
@@ -70,7 +68,7 @@ jobs:
                       echo "🛠️ Building Detox app..."
                       npm run e2e:build:android
                       echo "🚀 Running Detox tests..."
-                      npm run e2e:test:android --headless --record-logs all --record-videos all
+                      npm run e2e:test:android
 
 workflows:
     e2e:
