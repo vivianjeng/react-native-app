@@ -13,63 +13,64 @@ jobs:
         environment:
             CI: true
             EXPO_NO_WAIT: true
-
+            DETOX_LOGLEVEL: trace
+            METRO_PORT: 8081
         steps:
             - checkout
 
-            # Setup Node.js (using orb for consistency)
+            # Setup Node
             - node/install:
                   node-version: "20"
 
-            # Install dependencies
+            # Install deps
             - run:
-                  name: Install npm dependencies
+                  name: Install dependencies
                   command: npm ci
 
-            # Install Expo CLI (globally)
+            # Install Expo CLI
             - run:
                   name: Install Expo CLI
                   command: npm install -g expo-cli
 
-            # Prebuild the Expo app into native Android code
+            # Prebuild app
             - run:
                   name: Prebuild Expo app
                   command: npm run prebuild
 
-            # Start Metro bundler in background
+            # Start Metro bundler (detached)
             - run:
-                  name: Start Metro Bundler
-                  command: npx expo start --dev-client --port 8081 &
-                  background: true
-
-            # Wait for Metro to start
-            - run:
-                  name: Wait for Metro
+                  name: Start Metro bundler
                   command: |
-                      for i in {1..30}; do
-                        if nc -z localhost 8081; then
-                          echo "Metro is up!"
-                          break
-                        fi
-                        echo "Waiting for Metro..."
-                        sleep 2
-                      done
+                      nohup npx expo start --dev-client --port $METRO_PORT --host 0.0.0.0 > metro.log 2>&1 &
+                      sleep 5
+                      echo "Metro started on port $METRO_PORT"
+
+            # Create AVD
             - android/create_avd:
                   avd_name: Pixel_8_API_35
                   system_image: system-images;android-31;default;x86_64
                   install: true
+
+            # Start emulator and unlock
             - android/start_emulator:
                   avd_name: Pixel_8_API_35
                   no_window: true
-                  restore_gradle_cache_prefix: v1a
                   post_emulator_launch_assemble_command: ""
             - run:
-                  name: Run Detox tests
+                  name: Wait for device to be ready
                   command: |
-                      echo "🛠️ Building Android app for Detox..."
+                      adb wait-for-device
+                      adb shell input keyevent 82
+                      adb devices
+
+            # Detox build and test
+            - run:
+                  name: Build and run Detox tests
+                  command: |
+                      echo "🛠️ Building Detox app..."
                       npm run e2e:build:android
-                      echo "🚀 Running Detox E2E tests..."
-                      npm run e2e:test:android
+                      echo "🚀 Running Detox tests..."
+                      npm run e2e:test:android --headless --record-logs all --record-videos all
 
 workflows:
     e2e:
