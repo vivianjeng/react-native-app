@@ -41,7 +41,7 @@ jobs:
             - run:
                   name: Start Metro bundler
                   command: |
-                      npm run start
+                      npx expo start --dev-client --port 8081 &
 
             # Create AVD
             - android/create_avd:
