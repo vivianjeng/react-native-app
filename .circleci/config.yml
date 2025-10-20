@@ -7,7 +7,7 @@ orbs:
 commands:
     install_init:
         steps:
-            - rn/npm_install
+            - rn/yarn_install
             - run:
                   name: Install Global CLI Tools
                   command: |
