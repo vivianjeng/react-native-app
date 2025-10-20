@@ -11,7 +11,7 @@ commands:
             - run:
                   name: Install Global CLI Tools
                   command: |
-                      yarn install -g detox-cli react-native-cli
+                      npm install -g detox-cli react-native-cli
                       react-native --version
 
 jobs:
