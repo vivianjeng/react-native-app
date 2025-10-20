@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
     rn: react-native-community/react-native@8.0.0
-    android: circleci/android@3.0.2
+    android: circleci/android@3.1.0
 
 commands:
     install_init:
@@ -34,6 +34,7 @@ jobs:
         executor:
             name: android/android_machine
             resource_class: large
+            tag: default
 
         steps:
             - attach_workspace:
