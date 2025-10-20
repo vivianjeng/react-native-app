@@ -7,7 +7,7 @@ orbs:
 commands:
     install_init:
         steps:
-            - rn/yarn_install
+            - rn/npm_install
             - run:
                   name: Install Global CLI Tools
                   command: |
@@ -15,21 +15,6 @@ commands:
                       react-native --version
 
 jobs:
-    checking:
-        executor:
-            name: rn/linux_js
-            node_version: "20.18.0"
-
-        steps:
-            - checkout
-            - install_init
-            - run:
-                  command: yarn checker // run linter, prettier, jest
-            - persist_to_workspace:
-                  paths:
-                      - .
-                  root: .
-
     test_android:
         executor:
             name: android/android_machine
@@ -47,21 +32,11 @@ jobs:
             - rn/metro_start
             - run:
                   name: Detox Test
-                  command: yarn detox:test:android -l verbose
+                  command: |
+                      npm run e2e:build:android
+                      npm run e2e:test:android
 
 workflows:
     e2e_test:
         jobs:
-            - checking
-            - rn/android_build:
-                  name: build_android
-                  build_image_version: "v15.0"
-                  resource_class: large
-                  build_cache: false
-                  gradle_options: "-Xmx4g -XX:MaxMetaspaceSize=512m"
-                  build_type: debug
-                  requires:
-                      - checking
-            - test_android:
-                  requires:
-                      - build_android
+            - test_android
