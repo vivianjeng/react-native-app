@@ -7,14 +7,11 @@ orbs:
 commands:
     install_init:
         steps:
-            - run:
-                  name: Install dependencies
-                  command: |
-                      npm ci
+            - rn/yarn_install
             - run:
                   name: Install Global CLI Tools
                   command: |
-                      npm install -g detox-cli react-native-cli
+                      yarn install -g detox-cli react-native-cli
                       react-native --version
 
 jobs:
@@ -36,8 +33,8 @@ jobs:
             - run:
                   name: Detox Test
                   command: |
-                      npm run e2e:build:android
-                      npm run e2e:test:android
+                      yarn e2e:build:android
+                      yarn e2e:test:android
 
 workflows:
     e2e_test:

@@ -9,7 +9,7 @@ Learn more about Mopro: https://zkmopro.org.
 ### 1. Install dependencies
 
 ```bash
-npm install
+yarn
 ```
 
 ### 2. Start the app
@@ -23,25 +23,25 @@ npm install
     start an android emulator/device
 
     ```bash
-    npm run android
+    yarn android
     ```
 
 -   start an iOS simulator
 
     ```bash
-    npm run ios
+    yarn ios
     ```
 
     start an iOS device
 
     ```bash
-    npm run ios:device
+    yarn ios:device
     ```
 
 -   start a web app
 
     ```bash
-    npm run web
+    yarn web
     ```
 
 ### 3. Update Mopro Bindings
@@ -106,7 +106,7 @@ Run E2E Tests with [Detox](https://wix.github.io/Detox/)
 1. Start the development server
 
     ```sh
-    npm run start
+    yarn start
     ```
 
 2. Verify the simulator matches your Detox config
@@ -128,7 +128,7 @@ Run E2E Tests with [Detox](https://wix.github.io/Detox/)
     ```
 3. Run the tests
     ```sh
-    npm run e2e:test:ios
+    yarn e2e:test:ios
     ```
 
 ### Android
@@ -136,7 +136,7 @@ Run E2E Tests with [Detox](https://wix.github.io/Detox/)
 1. Start the development server
 
     ```sh
-    npm run start
+    yarn start
     ```
 
 2. Verify the simulator matches your Detox config
@@ -157,13 +157,12 @@ Run E2E Tests with [Detox](https://wix.github.io/Detox/)
     ```
 3. Run build command
     ```sh
-    npm run e2e:build:android
+    yarn e2e:build:android
     ```
-3. Run the tests
+4. Run the tests
     ```sh
-    npm run e2e:test:android
+    yarn e2e:test:android
     ```
-
 
 ## Screenshots
 
