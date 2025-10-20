@@ -1,76 +1,66 @@
 version: 2.1
 
 orbs:
-    node: circleci/node@7.2.0
-    android: circleci/android@3.1.0
+    rn: react-native-community/react-native@8.0.0
+    android: circleci/android@3.0.2
+
+commands:
+    install_init:
+        steps:
+            - rn/yarn_install
+            - run:
+                  name: Install Global CLI Tools
+                  command: |
+                      npm install -g detox-cli react-native-cli
+                      react-native --version
 
 jobs:
-    e2e-android:
+    checking:
+        executor:
+            name: rn/linux_js
+            node_version: "20.18.0"
+
+        steps:
+            - checkout
+            - install_init
+            - run:
+                  command: yarn checker // run linter, prettier, jest
+            - persist_to_workspace:
+                  paths:
+                      - .
+                  root: .
+
+    test_android:
         executor:
             name: android/android_machine
             resource_class: large
-            tag: default
-        environment:
-            CI: true
-            EXPO_NO_WAIT: true
-            DETOX_LOGLEVEL: trace
-            METRO_PORT: 8081
+
         steps:
-            - checkout
-
-            # Setup Node
-            - node/install:
-                  node-version: "20"
-
-            # Install deps
+            - attach_workspace:
+                  at: .
+            - rn/android_emulator_start:
+                  build_tools_version: "33.0.0"
+                  device_name: Pixel_8_API_35
+                  platform_version: android-35
+            - install_init
+            - rn/metro_start
             - run:
-                  name: Install dependencies
-                  command: npm ci
-
-            # Install Expo CLI
-            - run:
-                  name: Install Expo CLI
-                  command: npm install -g expo-cli
-
-            # Prebuild app
-            - run:
-                  name: Prebuild Expo app
-                  command: npm run prebuild
-
-            # Start Metro bundler (detached)
-            - run:
-                  name: Start Metro bundler
-                  command: |
-                      npx expo start --dev-client --port 8081 &
-
-            # Create AVD
-            - android/create_avd:
-                  avd_name: Pixel_8_API_35
-                  system_image: system-images;android-31;default;x86_64
-                  install: true
-
-            # Start emulator and unlock
-            - android/start_emulator:
-                  avd_name: Pixel_8_API_35
-                  no_window: true
-                  post_emulator_launch_assemble_command: ""
-            - run:
-                  name: Wait for device to be ready
-                  command: |
-                      adb wait-for-device
-                      adb shell input keyevent 82
-                      adb devices
-
-            # Detox build and test
-            - run:
-                  name: Build and run Detox tests
-                  command: |
-                      echo "🛠️ Building Detox app..."
-                      npm run e2e:build:android
-                      echo "🚀 Running Detox tests..."
-                      npm run e2e:test:android
+                  name: Detox Test
+                  command: yarn detox:test:android -l verbose
 
 workflows:
-    e2e:
+    e2e_test:
         jobs:
-            - e2e-android
+            - checking
+            - rn/android_build:
+                  name: build_android
+                  build_image_version: "v15.0"
+                  resource_class: large
+                  build_cache: false
+                  gradle_options: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+                  build_type: debug
+                  requires:
+                      - checking
+            - test_android:
+                  requires:
+                      - build_android
