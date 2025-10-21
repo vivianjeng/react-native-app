@@ -8,10 +8,6 @@ commands:
     install_init:
         steps:
             - rn/yarn_install
-            - run:
-                  name: Verify React Native CLI
-                  command: |
-                      npm install -g expo-cli
 
 jobs:
     test_android:
@@ -21,8 +17,7 @@ jobs:
             tag: default
 
         steps:
-            - attach_workspace:
-                  at: .
+            - checkout
 
             - rn/android_emulator_start:
                   build_tools_version: "35.0.0"
