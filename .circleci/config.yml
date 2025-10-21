@@ -19,6 +19,7 @@ jobs:
         environment:
             EXPO_NO_WAIT: "true"
             CI: "true"
+            DETOX_DISABLE_NETWORK_SYNC: "1"
 
         steps:
             - checkout
