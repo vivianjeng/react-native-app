@@ -11,7 +11,7 @@ commands:
             - run:
                   name: Verify React Native CLI
                   command: |
-                      npx react-native --version
+                      npm install -g expo-cli
 
 jobs:
     test_android:
@@ -36,6 +36,7 @@ jobs:
             - run:
                   name: Detox Test
                   command: |
+                      yarn prebuild
                       yarn e2e:build:android
                       yarn e2e:test:android
 

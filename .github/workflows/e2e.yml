@@ -21,7 +21,7 @@ jobs:
               run: yarn
 
             - name: Install Expo CLI
-              run: yarn install -g expo-cli
+              run: npm install -g expo-cli
 
             - name: Install applesimutils
               run: |
