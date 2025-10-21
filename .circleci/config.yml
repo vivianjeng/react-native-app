@@ -31,7 +31,10 @@ jobs:
 
             - install_init
 
-            - rn/metro_start
+            - run:
+                  name: Start Metro bundler
+                  command: |
+                      npx expo start --dev-client --port 8081 &
 
             - run:
                   name: Detox Test
